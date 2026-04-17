@@ -714,9 +714,9 @@ async def antinuke_status(ctx):
     embed.add_field(name="Canal logs", value=f"<#{log_ch}>" if log_ch else "No configurado", inline=False)
     await ctx.send(embed=embed)
 
-@bot.command(name="an_ayuda")
+@bot.command(name="an_help")
 @commands.check(es_owner_an)
-async def an_ayuda(ctx):
+async def an_help(ctx):
     p = PREFIX
     embed = discord.Embed(title="🛡️ AntiNuke — Comandos", color=0x00FF88)
     embed.add_field(name="⚙️ General",
@@ -1378,7 +1378,7 @@ FRASES_PERSONAJES = {
     "light":["Soy el nuevo dios de este mundo.","El que gana tiene razón."],
     "itachi":["Eres débil porque te falta odio.","El perdón es la base de la paz.","Siempre seré tu hermano mayor."],
     "todoroki":["Uso mi poder como quiero.","No te debo nada."],
-    "bakugo":["¡Ganaré y me convertiré en el número 1!","¡No necesito tu ayuda!"],
+    "bakugo":["¡Ganaré y me convertiré en el número 1!","¡No necesito tu help!"],
 }
 
 @bot.command(name="frase_personaje", aliases=["fp","anime_quote"])
@@ -2616,11 +2616,11 @@ for _a, _i in ANIME_ACCIONES.items():
 
 
 # ═════════════════════════════════════════════════════════════
-#  📖 AYUDA
+#  📖 help
 # ═════════════════════════════════════════════════════════════
 
-@bot.command(name="ayuda", aliases=["help","h","comandos"])
-async def ayuda(ctx):
+@bot.command(name="help", aliases=["help","h","comandos"])
+async def help (ctx):
     p = PREFIX
     embed = discord.Embed(
         title="📖 Comandos del Bot",
@@ -2637,7 +2637,7 @@ async def ayuda(ctx):
     embed.add_field(name="🛡️ AntiNuke (Owner)",
         value=(
             f"`{p}antinuke` — Panel completo\n"
-            f"`{p}an_ayuda` — Todos los comandos AntiNuke\n"
+            f"`{p}an_help` — Todos los comandos AntiNuke\n"
             f"AntiRaid | AntiLinks | AntiSpam | AntiBot | Verificación"
         ), inline=False)
     embed.add_field(name="⚠️ Warns (Staff)",
@@ -2716,9 +2716,9 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.MemberNotFound):
         await ctx.send("❌ Miembro no encontrado.")
     elif isinstance(error, commands.BadArgument):
-        await ctx.send(f"❌ Argumento inválido. Usa `{PREFIX}ayuda`.")
+        await ctx.send(f"❌ Argumento inválido. Usa `{PREFIX}help`.")
     elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(f"❌ Falta un argumento. Usa `{PREFIX}ayuda`.")
+        await ctx.send(f"❌ Falta un argumento. Usa `{PREFIX}help`.")
     elif isinstance(error, commands.CommandNotFound):
         pass
     else:
