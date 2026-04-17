@@ -1,8 +1,4 @@
 {
   "prefix": "!",
-  "puntos_max": 7,
-  "roles_staff": [
-    "👑 Administración",
-    "🛡️ Moderador"
-  ]
+  "owner_id": 0
 }
