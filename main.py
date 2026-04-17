@@ -3,20 +3,25 @@ from discord.ext import commands
 from discord.ui import View, Button
 import os
 
-# ==================== CONFIGURACIÓN ====================
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 intents.moderation = True
 intents.guilds = True
 
-bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
+# Bot con status online desde el principio
+bot = commands.Bot(
+    command_prefix="!",
+    intents=intents,
+    help_command=None,
+    status=discord.Status.online,      # ← Forzado online
+    activity=discord.Game(name="!help")
+)
 
 # ==================== CATEGORÍAS ====================
 CATEGORIES = {
     "antinuke": [
-        {"name": "!antinuke enable", "desc": "Activa protección anti-nuke", "usage": "!antinuke enable"},
-        {"name": "!antinuke disable", "desc": "Desactiva anti-nuke", "usage": "!antinuke disable"},
+        {"name": "!antinuke enable", "desc": "Activa anti-nuke", "usage": "!antinuke enable"},
     ],
     "moderacion": [
         {"name": "!ban", "desc": "Banea usuario", "usage": "!ban @usuario"},
@@ -25,24 +30,17 @@ CATEGORIES = {
     ],
     "roleplay": [
         {"name": "!rp hug", "desc": "Abraza a alguien", "usage": "!rp hug @usuario"},
-        {"name": "!rp kiss", "desc": "Besa a alguien", "usage": "!rp kiss @usuario"},
     ],
     "generales": [
-        {"name": "!ping", "desc": "Latencia del bot", "usage": "!ping"},
-        {"name": "!serverinfo", "desc": "Info del servidor", "usage": "!serverinfo"},
+        {"name": "!ping", "desc": "Latencia", "usage": "!ping"},
+        {"name": "!serverinfo", "desc": "Info servidor", "usage": "!serverinfo"},
     ],
-    "anime": [
-        {"name": "!waifu", "desc": "Waifu random", "usage": "!waifu"},
-    ],
-    "sorteos": [
-        {"name": "!giveaway", "desc": "Inicia sorteo", "usage": "!giveaway premio: Premio"},
-    ],
-    "encuestas": [
-        {"name": "!poll", "desc": "Crea encuesta", "usage": "!poll pregunta: Pregunta"},
-    ]
+    "anime": [{"name": "!waifu", "desc": "Waifu random", "usage": "!waifu"}],
+    "sorteos": [{"name": "!giveaway", "desc": "Inicia sorteo", "usage": "!giveaway"}],
+    "encuestas": [{"name": "!poll", "desc": "Crea encuesta", "usage": "!poll"}]
 }
 
-# ==================== VISTAS ====================
+# ==================== VISTAS (Botones) ====================
 class CommandPageView(View):
     def __init__(self, cmd_list, category):
         super().__init__(timeout=600)
@@ -95,13 +93,8 @@ class CategoryView(View):
 # ==================== COMANDOS ====================
 @bot.command(name="help")
 async def help_command(ctx):
-    embed = discord.Embed(
-        title="🤖 Menú de Ayuda",
-        description="Selecciona una categoría con los botones:",
-        color=0x00ff88
-    )
-    view = CategoryView()
-    await ctx.send(embed=embed, view=view)
+    embed = discord.Embed(title="🤖 Menú de Ayuda", description="Elige una categoría:", color=0x00ff88)
+    await ctx.send(embed=embed, view=CategoryView())
 
 @bot.command(name="ping")
 async def ping(ctx):
@@ -110,8 +103,9 @@ async def ping(ctx):
 # ==================== ON_READY ====================
 @bot.event
 async def on_ready():
-    print(f"✅ Bot conectado correctamente como {bot.user}")
+    print(f"✅ Bot conectado como {bot.user} | ID: {bot.user.id}")
     print(f"   Servidores: {len(bot.guilds)}")
+    # Forzar presencia online cada vez
     await bot.change_presence(
         status=discord.Status.online,
         activity=discord.Game(name="!help")
@@ -121,7 +115,7 @@ async def on_ready():
 if __name__ == "__main__":
     token = os.getenv("DISCORD_TOKEN")
     if not token:
-        print("❌ No se encontró DISCORD_TOKEN en Railway")
+        print("❌ Falta DISCORD_TOKEN en Railway")
         exit(1)
     print("🚀 Iniciando bot...")
     bot.run(token)
