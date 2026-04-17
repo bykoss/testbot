@@ -28,7 +28,7 @@ logging.basicConfig(
 log = logging.getLogger("bot")
 
 # ═══════════════════════════════════════════════════════════════
-#  PATCH GLOBAL — "by Koss" en TODOS los embeds automático
+#  PATCH GLOBAL — "by Exagonal" en TODOS los embeds automático
 #  Se inyecta ANTES de crear el bot, afecta cada embed.send()
 # ═══════════════════════════════════════════════════════════════
 _original_send = discord.abc.Messageable.send
@@ -39,15 +39,15 @@ async def _patched_send(self, content=None, **kwargs):
     if embed is not None:
         footer = embed.footer
         if not footer or not footer.text:
-            embed.set_footer(text="by Koss")
-        elif "by Koss" not in footer.text:
+            embed.set_footer(text="by Exagonal")
+        elif "by Exagonal" not in footer.text:
             if footer.icon_url:
                 embed.set_footer(
-                    text=footer.text + " | by Koss",
+                    text=footer.text + " | by Exagonal",
                     icon_url=footer.icon_url
                 )
             else:
-                embed.set_footer(text=footer.text + " | by Koss")
+                embed.set_footer(text=footer.text + " | by Exagonal")
     return await _original_send(self, content=content, **kwargs)
 
 discord.abc.Messageable.send = _patched_send
@@ -83,7 +83,7 @@ intents.members = True
 intents.message_content = True
 
 bot = commands.Bot(command_prefix=PREFIX, intents=intents)
-bot.remove_command("ayuda")
+bot.remove_command("help")
 
 # ─────────────────────────────────────────────────────────────
 #  PERMISOS
@@ -2706,7 +2706,7 @@ async def ayuda(ctx):
 async def on_ready():
     log.info(f"Bot conectado: {bot.user} (ID: {bot.user.id})")
     await bot.change_presence(
-        activity=discord.Activity(type=discord.ActivityType.watching, name=f"{PREFIX}ayuda System Bot ")
+        activity=discord.Activity(type=discord.ActivityType.watching, name=f"{PREFIX}ayuda System Bot")
     )
 
 @bot.event
