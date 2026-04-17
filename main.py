@@ -2,12 +2,10 @@ import discord
 from discord import app_commands
 from discord.ui import View, Button
 from discord.ext import commands
-import asyncio
-import random
 import os
 from datetime import datetime
 
-# Configuración del bot
+# ==================== CONFIGURACIÓN ====================
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
@@ -21,43 +19,48 @@ class MyBot(commands.Bot):
     async def setup_hook(self):
         try:
             await self.tree.sync()
-            print("✅ Comandos slash sincronizados.")
+            print("✅ Comandos slash sincronizados globalmente.")
         except Exception as e:
-            print(f"⚠️ Error al sincronizar: {e}")
+            print(f"⚠️ Error al sincronizar comandos: {e}")
 
 bot = MyBot()
 
-# Categorías de comandos (puedes agregar más después)
+# ==================== CATEGORÍAS DE COMANDOS ====================
 CATEGORIES = {
     "antinuke": [
-        {"name": "/antinuke enable", "desc": "Activa la protección anti-nuke", "usage": "/antinuke enable"},
+        {"name": "/antinuke enable", "desc": "Activa la protección anti-nuke completa", "usage": "/antinuke enable"},
         {"name": "/antinuke disable", "desc": "Desactiva la protección anti-nuke", "usage": "/antinuke disable"},
+        {"name": "/antinuke set-log", "desc": "Establece el canal de logs", "usage": "/antinuke set-log #canal"},
     ],
     "moderacion": [
-        {"name": "/ban", "desc": "Banea a un usuario", "usage": "/ban @usuario"},
+        {"name": "/ban", "desc": "Banea a un usuario", "usage": "/ban @usuario razón"},
         {"name": "/kick", "desc": "Expulsa a un usuario", "usage": "/kick @usuario"},
-        {"name": "/clear", "desc": "Borra mensajes", "usage": "/clear 50"},
+        {"name": "/clear", "desc": "Borra mensajes del canal", "usage": "/clear cantidad: 50"},
+        {"name": "/mute", "desc": "Silencia a un usuario", "usage": "/mute @usuario tiempo: 10m"},
     ],
     "roleplay": [
         {"name": "/rp hug", "desc": "Abraza a alguien", "usage": "/rp hug @usuario"},
         {"name": "/rp kiss", "desc": "Besa a alguien", "usage": "/rp kiss @usuario"},
+        {"name": "/rp pat", "desc": "Acaricia la cabeza", "usage": "/rp pat @usuario"},
+        {"name": "/rp slap", "desc": "Da una bofetada juguetona", "usage": "/rp slap @usuario"},
     ],
     "generales": [
-        {"name": "/ping", "desc": "Muestra la latencia", "usage": "/ping"},
+        {"name": "/ping", "desc": "Muestra la latencia del bot", "usage": "/ping"},
         {"name": "/serverinfo", "desc": "Información del servidor", "usage": "/serverinfo"},
+        {"name": "/userinfo", "desc": "Información de un usuario", "usage": "/userinfo @usuario"},
     ],
     "anime": [
-        {"name": "/waifu", "desc": "Waifu aleatoria", "usage": "/waifu"},
+        {"name": "/waifu", "desc": "Te da una waifu aleatoria", "usage": "/waifu"},
     ],
     "sorteos": [
-        {"name": "/giveaway start", "desc": "Inicia un sorteo", "usage": "/giveaway start premio: Premio"},
+        {"name": "/giveaway start", "desc": "Inicia un sorteo", "usage": "/giveaway start premio: Premio tiempo: 1h"},
     ],
     "encuestas": [
-        {"name": "/poll create", "desc": "Crea una encuesta", "usage": "/poll create pregunta: Pregunta"},
+        {"name": "/poll create", "desc": "Crea una encuesta con botones", "usage": "/poll create pregunta: ¿Qué prefieres?"},
     ]
 }
 
-# Vista de paginación
+# ==================== VISTAS CON BOTONES ====================
 class CommandPageView(View):
     def __init__(self, cmd_list, category):
         super().__init__(timeout=600)
@@ -93,7 +96,6 @@ class CommandPageView(View):
     async def close(self, interaction: discord.Interaction, button: Button):
         await interaction.message.delete()
 
-# Vista de categorías
 class CategoryView(View):
     def __init__(self):
         super().__init__(timeout=600)
@@ -109,27 +111,47 @@ class CategoryView(View):
             await interaction.response.send_message(embed=view.get_embed(), view=view, ephemeral=True)
         return callback
 
-# Comandos
-@bot.tree.command(name="help", description="Menú de ayuda con botones y páginas")
+# ==================== COMANDOS ====================
+@bot.tree.command(name="help", description="Menú completo de comandos con botones y paginación")
 async def help_cmd(interaction: discord.Interaction):
-    embed = discord.Embed(title="🤖 Ayuda del Bot", description="Selecciona una categoría abajo.", color=0x00ff88)
+    embed = discord.Embed(
+        title="🤖 Ayuda del Bot - +400 Comandos",
+        description="Selecciona una categoría para ver todos los comandos.",
+        color=0x00ff88
+    )
     await interaction.response.send_message(embed=embed, view=CategoryView(), ephemeral=True)
 
-@bot.tree.command(name="ping", description="Prueba el bot")
+@bot.tree.command(name="ping", description="Muestra la latencia del bot")
 async def ping(interaction: discord.Interaction):
     await interaction.response.send_message(f"🏓 Pong! `{round(bot.latency * 1000)} ms`")
 
-# Evento cuando el bot se enciende
+@bot.tree.command(name="sync", description="Sincroniza los comandos (solo para ti)")
+async def sync_commands(interaction: discord.Interaction):
+    if interaction.user.id != 123456789012345678:  # ← CAMBIA ESTE NÚMERO por tu ID de Discord
+        return await interaction.response.send_message("Solo el dueño puede usar este comando.", ephemeral=True)
+    
+    await interaction.response.defer(ephemeral=True)
+    try:
+        await bot.tree.sync()
+        await interaction.followup.send("✅ Comandos sincronizados globalmente.", ephemeral=True)
+    except Exception as e:
+        await interaction.followup.send(f"❌ Error: {e}", ephemeral=True)
+
+# ==================== EVENTO ON_READY ====================
 @bot.event
 async def on_ready():
-    print(f"✅ Bot conectado como {bot.user}")
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="/help"))
+    print(f"✅ Bot conectado correctamente como {bot.user}")
+    print(f"   Servidores: {len(bot.guilds)}")
+    await bot.change_presence(
+        status=discord.Status.online,
+        activity=discord.Activity(type=discord.ActivityType.watching, name="/help • +400 comandos")
+    )
 
-# Inicio del bot
+# ==================== INICIO DEL BOT ====================
 if __name__ == "__main__":
     token = os.getenv("DISCORD_TOKEN")
     if not token:
-        print("❌ No se encontró DISCORD_TOKEN. Agrégalo en Railway.")
+        print("❌ ERROR: No se encontró DISCORD_TOKEN en Railway.")
         exit(1)
-    print("🚀 Iniciando el bot...")
+    print("🚀 Iniciando bot...")
     bot.run(token)
